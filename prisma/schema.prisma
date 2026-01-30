@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SubscriptionStatus {
+  active
+  past_due
+  canceled
+}
+
+enum ContentType {
+  photo
+  video
+}
+
+model User {
+  id                   String                   @id @default(cuid())
+  email                String                   @unique
+  passwordHash         String
+  name                 String?
+  role                 String                   @default("member")
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  subscriptionStatus   SubscriptionStatus       @default(canceled)
+  createdAt            DateTime                 @default(now())
+  updatedAt            DateTime                 @updatedAt
+  notificationPreference NotificationPreference?
+  sessions             Session[]
+  supportTickets       SupportTicket[]
+  magicTokens          MagicToken[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Content {
+  id           String      @id @default(cuid())
+  title        String
+  type         ContentType
+  mediaUrl     String
+  thumbnailUrl String
+  isLocked     Boolean     @default(true)
+  publishedAt  DateTime?
+  createdAt    DateTime    @default(now())
+}
+
+model NotificationPreference {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  optedIn   Boolean  @default(false)
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SupportTicket {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  email     String
+  message   String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model MagicToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

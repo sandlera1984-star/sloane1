@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-cream text-plum;
+}
+
+.text-shadow {
+  text-shadow: 0 8px 30px rgba(111, 75, 139, 0.3);
+}
+
+.blur-cover {
+  filter: blur(8px);
+}
